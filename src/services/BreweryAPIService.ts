@@ -3,6 +3,7 @@ import { useFavoritesStore } from '@/stores/FavoritesStore'
 import { Brewery } from '@/interfaces/interfaces'
 
 const apiURL = 'https://api.openbrewerydb.org/breweries'
+const favoritesStore = useFavoritesStore()
 
 export const getBreweriesByLocation = async () => {
   const loc = await Geolocation.getCurrentPosition()
@@ -30,8 +31,7 @@ export const getBreweriesByZip = async (zip: string) => {
 }
 
 export const getFavoriteBreweries = async () => {
-  const favoritesStore = useFavoritesStore()
-  const favoriteIds = favoritesStore.getFavorites
+  const favoriteIds = await favoritesStore.getFavorites
   const favoriteBreweries = [] as Brewery[]
 
   console.log(favoriteIds)

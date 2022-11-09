@@ -24,6 +24,20 @@ import '@ionic/vue/css/display.css'
 /* Theme variables */
 import './theme/variables.css'
 
+/* FIREBASE STUFF */
+import { getAuth } from 'firebase/auth'
+import { getFirestore } from 'firebase/firestore'
+import { getStorage } from 'firebase/storage'
+import { initializeApp } from 'firebase/app'
+
+import { firebaseConfig } from './firebaseConfig'
+
+const firebaseApp = initializeApp(firebaseConfig)
+
+export const auth = getAuth()
+export const db = getFirestore(firebaseApp)
+export const storage = getStorage(firebaseApp)
+
 const pinia = createPinia()
 
 const app = createApp(App)

@@ -21,6 +21,6 @@ export const useFavoritesStore = defineStore('FavoritesStore', {
   },
 
   getters: {
-    getFavorites: state => state.favorites,
+    getFavorites: async (state) => state.favorites,
   }
 })
