@@ -1,29 +1,131 @@
 <template>
   <ion-page>
+    <ion-loading
+      :isOpen="loading"
+      message="Loading breweries ..."
+      @didDismiss="setLoading(false)"
+    ></ion-loading>
+
     <ion-header>
       <ion-toolbar>
-        <ion-title>Tab 1</ion-title>
+        <ion-title>Find Breweries</ion-title>
       </ion-toolbar>
     </ion-header>
-    <ion-content :fullscreen="true">
-      <ion-header collapse="condense">
-        <ion-toolbar>
-          <ion-title size="large">Tab 1</ion-title>
-        </ion-toolbar>
-      </ion-header>
-    
-      <ExploreContainer name="Tab 1 page" />
+    <ion-content :fullscreen="true" class="ion-padding">
+      <ion-searchbar
+        placeholder="Enter city or ZIP Code"
+        debounce="500"
+        @ionClear="clearSearchBar"
+        @ionChange="search($event)"
+      ></ion-searchbar>
+
+      <ion-title>Breweries Near You</ion-title>
+
+      <template v-if="!loading">
+        <template v-if="breweries.length !== 0">
+          <brewery-component v-for="brewery in breweries" :key="brewery.id">
+            <template #city>{{ brewery.city }}, {{ brewery.state }}</template>
+            <template #name>{{ brewery.name }}</template>
+            <template #address>{{ brewery.street }}</template>
+            <template #map>
+              <a href="">
+                <ion-icon :icon="map" />
+                Map
+              </a>
+            </template>
+            <template v-if="brewery.website_url" #website>
+              <a href="#" @click.prevent="openBreweryWebsite(brewery.website_url)">
+                <ion-icon :icon="globe" />
+                Website
+              </a>
+            </template>
+            <template v-if="brewery.phone" #phone>
+              <a href="tel:{{ brewery.phone }}">
+                <ion-icon :icon="call" />
+                Call
+              </a>
+            </template>
+          </brewery-component>
+        </template>
+
+        <ion-card v-else>
+          <ion-card-header>
+            <ion-card-subtitle>BUMMER DUDE</ion-card-subtitle>
+            <ion-card-title>No beer for you!</ion-card-title>
+            <ion-card-content>
+              We couldn't find any breweries there. We recommend not going to whatever place 
+              you searched, because it is clearly a location entirely without joy.
+            </ion-card-content>
+          </ion-card-header>
+        </ion-card>
+      </template>
     </ion-content>
   </ion-page>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
-import ExploreContainer from '@/components/ExploreContainer.vue';
+<script setup lang="ts">
+import { ref } from 'vue'
+import {
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonSearchbar,
+  IonIcon,
+  IonLoading,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle,
+  IonCardContent,
 
-export default  defineComponent({
-  name: 'Tab1Page',
-  components: { ExploreContainer, IonHeader, IonToolbar, IonTitle, IonContent, IonPage }
-});
+  onIonViewWillEnter,
+} from '@ionic/vue'
+import { call, globe, map, star, starOutline } from 'ionicons/icons'
+import { InAppBrowser } from '@ionic-native/in-app-browser'
+import {
+  getBreweriesByCity, 
+  getBreweriesByLocation, 
+  getBreweriesByZip
+} from '@/services/BreweryAPIService'
+import BreweryComponent from '@/components/BreweryComponent.vue'
+
+const loading = ref(false)
+const setLoading = (isOpen: boolean) => loading.value = isOpen
+
+let breweries = ref([] as any[])
+
+const clearSearchBar = async () => {
+  loading.value = true
+  breweries.value = await getBreweriesByLocation()
+  loading.value = false
+}
+
+const openBreweryWebsite = (url: string) => {
+  InAppBrowser.create(url)
+}
+
+const search = async (event: any) => {
+  const query = event.target.value
+
+  if (query.length !== 0) {
+    loading.value = true
+
+    // if it's not a number search by city, if it is, search by zip
+    if (isNaN(query)) {
+      breweries.value = await getBreweriesByCity(query)
+    } else {
+      breweries.value = await getBreweriesByZip(query)
+    }
+
+    loading.value = false
+  }
+}
+
+onIonViewWillEnter(async () => {
+  loading.value = true
+  breweries.value = await getBreweriesByLocation()
+  loading.value = false
+})
 </script>
