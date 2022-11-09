@@ -23,7 +23,11 @@
 
       <template v-if="!loading">
         <template v-if="breweries.length !== 0">
-          <brewery-component v-for="brewery in breweries" :key="brewery.id">
+          <brewery-component
+            v-for="brewery in breweries"
+            :key="brewery.id"
+            :brewery-id="brewery.id"
+          >
             <template #city>{{ brewery.city }}, {{ brewery.state }}</template>
             <template #name>{{ brewery.name }}</template>
             <template #address>{{ brewery.street }}</template>
@@ -82,7 +86,7 @@ import {
 
   onIonViewWillEnter,
 } from '@ionic/vue'
-import { call, globe, map, star, starOutline } from 'ionicons/icons'
+import { call, globe, map } from 'ionicons/icons'
 import { InAppBrowser } from '@ionic-native/in-app-browser'
 import {
   getBreweriesByCity, 

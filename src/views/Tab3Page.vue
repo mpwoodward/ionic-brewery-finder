@@ -5,27 +5,39 @@
         <ion-title>Tasting Notes</ion-title>
         <ion-buttons slot="primary">
           <ion-button id="open-modal" fill="solid" color="primary">
-            <ion-icon slot="start" :icon="add" />
+            <ion-icon slot="start" :icon="addCircle" />
             New
           </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
+    
     <ion-content :fullscreen="true">
       <ion-header collapse="condense">
         <ion-toolbar>
           <ion-title size="large">Tasting Notes</ion-title>
         </ion-toolbar>
       </ion-header>
-      <tasting-note-component
-        v-for="note in tastingNotes"
-        :key="note.beerName"
-        :photoDataUrl="note.photoDataUrl"
-      >
-        <template #beerName>{{ note.beerName }}</template>
-        <template #tastingNotes>{{ note.tastingNotes }}</template>
-      </tasting-note-component>
-    </ion-content>
+      <template v-if="tastingNotes.length !== 0">
+        <tasting-note-component
+          v-for="note in tastingNotes"
+          :key="note.beerName"
+          :photoDataUrl="note.photoDataUrl"
+        >
+          <template #beerName>{{ note.beerName }}</template>
+          <template #tastingNotes>{{ note.tastingNotes }}</template>
+        </tasting-note-component>
+      </template>
+      <ion-card v-else>
+        <ion-card-header>
+          <ion-card-subtitle>YOU COULD USE A DRINK</ion-card-subtitle>
+          <ion-card-title>No Tasting Notes</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          Don't be scared! Beer is here to help you.
+        </ion-card-content>
+      </ion-card>
+   </ion-content>
 
     <ion-modal
       ref="modal"
@@ -57,9 +69,13 @@
           <ion-textarea
             ref="tastingNotesInput"
             placeholder="Bready? Balanced? Bitter? Bad?"
+            :auto-grow="true"
           ></ion-textarea>
         </ion-item>
-        <ion-button color="primary" @click="takePicture()">Take Photo</ion-button>
+        <ion-button color="primary" @click="takePicture()">
+          <ion-icon slot="start" :icon="camera" />
+          Take Photo
+        </ion-button>
       </ion-content>
     </ion-modal>
   </ion-page>
@@ -81,10 +97,18 @@ import {
   IonLabel,
   IonInput,
   IonTextarea,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle,
+  IonCardContent,
 } from '@ionic/vue'
-import { add } from 'ionicons/icons'
+import { addCircle, camera } from 'ionicons/icons'
 import { OverlayEventDetail } from '@ionic/core/components'
 import { Camera, CameraResultType } from '@capacitor/camera'
+import { Geolocation } from '@capacitor/geolocation'
+import { ref as firebaseStorageRef, uploadString, getDownloadURL } from 'firebase/storage'
+import { collection, addDoc } from '@firebase/firestore'
 import TastingNoteComponent from '@/components/TastingNoteComponent.vue'
 
 const tastingNotes = ref([] as any[])
