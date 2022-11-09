@@ -1,4 +1,6 @@
 import { Geolocation } from '@capacitor/geolocation'
+import { useFavoritesStore } from '@/stores/FavoritesStore'
+import { Brewery } from '@/interfaces/interfaces'
 
 const apiURL = 'https://api.openbrewerydb.org/breweries'
 
@@ -25,4 +27,36 @@ export const getBreweriesByZip = async (zip: string) => {
   const breweriesJSON = await breweries_res.json()
 
   return breweriesJSON
+}
+
+export const getFavoriteBreweries = async () => {
+  const favoritesStore = useFavoritesStore()
+  const favoriteIds = favoritesStore.getFavorites
+  const favoriteBreweries = [] as Brewery[]
+
+  console.log(favoriteIds)
+
+  favoriteIds?.forEach(async (favoriteId: string) => {
+    const brewery_res = await fetch(`${apiURL}/${favoriteId}`)
+    const breweryJSON = await brewery_res.json()
+
+    console.log(breweryJSON)
+
+    favoriteBreweries.push({
+      id: breweryJSON['id'],
+      name: breweryJSON['name'],
+      address: breweryJSON['street'],
+      city: breweryJSON['city'],
+      state: breweryJSON['state'],
+      zip: breweryJSON['zip'],
+      phone: breweryJSON['phone'],
+      website: breweryJSON['website_url'],
+      latitude: parseFloat(breweryJSON['latitude']),
+      longitude: parseFloat(breweryJSON['longitude'])
+    } as Brewery)
+  })
+
+  console.log(favoriteBreweries)
+
+  return favoriteBreweries
 }

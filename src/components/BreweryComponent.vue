@@ -12,8 +12,8 @@
             </ion-col>
             <ion-col size="2">
               <ion-icon
-                :icon="starIcon"
-                :color="starColor"
+                :icon="isFavorite() ? star : starOutline"
+                :color="isFavorite() ? 'primary' : ''"
                 @click="toggleFavorite()"
               />
             </ion-col>
@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, onMounted, useSlots } from 'vue'
+import { ref, defineProps, useSlots } from 'vue'
 import { storeToRefs } from 'pinia'
 import {
   IonCard,
@@ -74,23 +74,16 @@ const props = defineProps({
 const favoritesStore = useFavoritesStore()
 const { favorites } = storeToRefs(favoritesStore)
 
-const starIcon = ref(starOutline)
-const starColor = ref()
-
-const isFavorite = (breweryId: string) => {
-  const favorite = favorites.value.indexOf(breweryId) !== -1 ? true : false
+const isFavorite = () => {
+  const favorite = favorites.value.indexOf(props.breweryId) !== -1 ? true : false
   return favorite
 }
 
 const toggleFavorite = () => {
-  if (isFavorite(props.breweryId)) {
+  if (isFavorite()) {
     favoritesStore.removeFavorite(props.breweryId)
-    starIcon.value = starOutline
-    starColor.value = ''
   } else {
     favoritesStore.addFavorite(props.breweryId)
-    starIcon.value = star
-    starColor.value = 'primary'
   }
 }
 
@@ -100,13 +93,6 @@ const hasWebsite = ref(false)
 if (slots.website && slots.website().length) {
   hasWebsite.value = true
 }
-
-onMounted(() => {
-  if (isFavorite(props.breweryId)) {
-    starIcon.value = star
-    starColor.value = 'primary'
-  }
-})
 </script>
 
 <style scoped>

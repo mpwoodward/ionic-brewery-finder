@@ -13,15 +13,15 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
       <ion-searchbar
-        placeholder="Enter a name"
+        placeholder="Filter by name"
         debounce="500"
         @ionClear="clearSearchBar"
         @ionChange="search($event)"
       ></ion-searchbar>
 
-      <ion-title>Your Favorite Watering Holes</ion-title>
+      <ion-title>Your Favorite Breweries</ion-title>
 
-      <!-- <template v-if="!loading">
+      <template v-if="!loading">
         <template v-if="breweries.length !== 0">
           <brewery-component
             v-for="brewery in breweries"
@@ -30,15 +30,15 @@
           >
             <template #city>{{ brewery.city }}, {{ brewery.state }}</template>
             <template #name>{{ brewery.name }}</template>
-            <template #address>{{ brewery.street }}</template>
+            <template #address>{{ brewery.address }}</template>
             <template #map>
               <a href="">
                 <ion-icon :icon="map" />
                 Map
               </a>
             </template>
-            <template v-if="brewery.website_url" #website>
-              <a href="#" @click.prevent="openBreweryWebsite(brewery.website_url)">
+            <template v-if="brewery.website" #website>
+              <a href="#" @click.prevent="openBreweryWebsite(brewery.website)">
                 <ion-icon :icon="globe" />
                 Website
               </a>
@@ -54,15 +54,14 @@
 
         <ion-card v-else>
           <ion-card-header>
-            <ion-card-subtitle>BUMMER DUDE</ion-card-subtitle>
-            <ion-card-title>No beer for you!</ion-card-title>
+            <ion-card-subtitle>START EXPLORING</ion-card-subtitle>
+            <ion-card-title>No favorites!</ion-card-title>
             <ion-card-content>
-              We couldn't find any breweries there. We recommend not going to whatever place 
-              you searched, because it is clearly a location entirely without joy.
+              You don't have any favorites. Our recommendation is to try more beer!
             </ion-card-content>
           </ion-card-header>
         </ion-card>
-      </template> -->
+      </template>
     </ion-content>
   </ion-page>
 </template>
@@ -88,21 +87,18 @@ import {
 } from '@ionic/vue'
 import { call, globe, map } from 'ionicons/icons'
 import { InAppBrowser } from '@ionic-native/in-app-browser'
-import {
-  getBreweriesByCity, 
-  getBreweriesByLocation, 
-  getBreweriesByZip
-} from '@/services/BreweryAPIService'
+import { getFavoriteBreweries } from '@/services/BreweryAPIService'
 import BreweryComponent from '@/components/BreweryComponent.vue'
+import { Brewery } from '@/interfaces/interfaces'
 
 const loading = ref(false)
 const setLoading = (isOpen: boolean) => loading.value = isOpen
 
-let breweries = ref([] as any[])
+let breweries = ref([] as Brewery[])
 
 const clearSearchBar = async () => {
   loading.value = true
-  breweries.value = await getBreweriesByLocation()
+  breweries.value = await getFavoriteBreweries()
   loading.value = false
 }
 
@@ -116,20 +112,14 @@ const search = async (event: any) => {
   if (query.length !== 0) {
     loading.value = true
 
-    // if it's not a number search by city, if it is, search by zip
-    if (isNaN(query)) {
-      breweries.value = await getBreweriesByCity(query)
-    } else {
-      breweries.value = await getBreweriesByZip(query)
-    }
 
     loading.value = false
   }
 }
 
-// onIonViewWillEnter(async () => {
-//   loading.value = true
-//   breweries.value = await getBreweriesByLocation()
-//   loading.value = false
-// })
+onIonViewWillEnter(async () => {
+  loading.value = true
+  breweries.value = await getFavoriteBreweries()
+  loading.value = false
+})
 </script>
