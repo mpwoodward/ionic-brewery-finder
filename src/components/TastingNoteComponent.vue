@@ -5,7 +5,9 @@
         <slot name="beerName"></slot>
       </ion-card-title>
       <ion-card-content>
-        <img :src="props.photoDataUrl" />
+        <div>
+          <img :src="props.photoDataUrl" />
+        </div>
         <slot name="tastingNotes"></slot>
       </ion-card-content>
     </ion-card-header>
@@ -25,3 +27,10 @@ const props = defineProps({
   photoDataUrl: String
 })
 </script>
+
+<style scoped>
+img {
+  width: 100%;
+  max-width: 400px;
+}
+</style>
