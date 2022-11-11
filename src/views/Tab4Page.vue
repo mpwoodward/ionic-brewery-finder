@@ -17,9 +17,10 @@
         debounce="500"
         @ionClear="clearSearchBar"
         @ionChange="search($event)"
+        v-if="breweries.length !== 0"
       ></ion-searchbar>
 
-      <ion-title>Your Favorite Breweries</ion-title>
+      <ion-title v-if="breweries.length !== 0">Your Favorite Breweries</ion-title>
 
       <template v-if="!loading">
         <template v-if="breweries.length !== 0">
