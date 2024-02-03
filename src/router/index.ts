@@ -1,4 +1,10 @@
-import { createRouter, createWebHistory } from '@ionic/vue-router';
+/**
+ * Imports createRouter and createWebHistory from the @ionic/vue-router package.
+ *
+ * createRouter is used to initialize a new router instance.
+ * createWebHistory creates a web history instance for the router that uses regular URLs without hashes.
+ */
+import { createRouter, createWebHistory } from "@ionic/vue-router";
 import { RouteRecordRaw } from 'vue-router';
 import TabsPage from '../views/TabsPage.vue'
 
